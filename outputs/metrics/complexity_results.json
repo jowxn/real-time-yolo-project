@@ -1,0 +1,20 @@
+[
+  {
+    "model": "yolov8n",
+    "parameters": 3157200,
+    "gflops": 8.8550912,
+    "model_size_mb": 6.25
+  },
+  {
+    "model": "yolo11n",
+    "parameters": 2624080,
+    "gflops": 6.6733184,
+    "model_size_mb": 5.35
+  },
+  {
+    "model": "yolo26n",
+    "parameters": 2572280,
+    "gflops": 6.2396672,
+    "model_size_mb": 5.29
+  }
+]

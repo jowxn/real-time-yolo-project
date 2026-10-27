@@ -1,0 +1,26 @@
+[
+  {
+    "model": "yolov8n",
+    "mean_latency_ms": 52.57906600018032,
+    "std_latency_ms": 1.7795213241709136,
+    "mean_fps": 19.018976107269964,
+    "n_trials": 50,
+    "n_warmup": 10
+  },
+  {
+    "model": "yolo11n",
+    "mean_latency_ms": 53.549360002507456,
+    "std_latency_ms": 1.3572946539581685,
+    "mean_fps": 18.674359505943205,
+    "n_trials": 50,
+    "n_warmup": 10
+  },
+  {
+    "model": "yolo26n",
+    "mean_latency_ms": 54.29826399835292,
+    "std_latency_ms": 2.97500652070346,
+    "mean_fps": 18.416795056842588,
+    "n_trials": 50,
+    "n_warmup": 10
+  }
+]
