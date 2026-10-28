@@ -26,6 +26,7 @@ imgsz = st.sidebar.selectbox("Input resolution", [320, 480, 640], index=2)
 conf = st.sidebar.slider("Confidence threshold", 0.05, 0.95, 0.25, 0.05)
 iou = st.sidebar.slider("IoU threshold", 0.10, 0.90, 0.45, 0.05)
 st.sidebar.caption("Defaults match the paper: conf 0.25, IoU 0.45, 640 px.")
+st.sidebar.caption("Live FPS/latency here reflect the machine running the app. The paper's numbers are from the Ryzen 7 7730U laptop (see Benchmark tab).")
 
 tab_live, tab_bench = st.tabs(["Live Detection", "Benchmark Results"])
 
@@ -70,7 +71,7 @@ with tab_bench:
 
 
 # ---------------- Detection helpers (heavy imports happen lazily here) ----------------
-@st.cache_resource(show_spinner="Loading model (first load can take 20-30 s)...")
+@st.cache_resource(max_entries=1, show_spinner="Loading model (first load can take 20-30 s)...")
 def get_model(key):
     from model_utils import load_model
     return load_model(key)
@@ -108,7 +109,9 @@ def run_stream(cap, model, frame_slot, metric_slot):
 
 # ---------------- Live detection tab ----------------
 with tab_live:
-    source = st.radio("Input source", ["Webcam", "Image upload", "Video upload"], horizontal=True)
+    source = st.radio("Input source",
+                      ["Live webcam (local PC only)", "Camera snapshot (browser)", "Image upload", "Video upload"],
+                      index=1, horizontal=True)
     frame_slot, metric_slot = st.empty(), st.empty()
 
     try:
@@ -123,6 +126,16 @@ with tab_live:
                 show_metrics(metric_slot, model_key, 1000.0 / lat if lat else None, lat, n)
                 st.caption("Single-image latency includes first-call overhead; the Benchmark tab has warm-up-excluded timings.")
 
+        elif source == "Camera snapshot (browser)":
+            shot = st.camera_input("Take a picture (uses your browser's camera)")
+            if shot is not None:
+                model = get_model(model_key)
+                frame = cv2.imdecode(np.frombuffer(shot.getvalue(), np.uint8), cv2.IMREAD_COLOR)
+                img, n, lat = infer(model, frame, imgsz, conf, iou)
+                frame_slot.image(img, channels="BGR", width="stretch")
+                show_metrics(metric_slot, model_key, 1000.0 / lat if lat else None, lat, n)
+                st.caption("Single-frame latency includes first-call overhead; see the Benchmark tab for warm-up-excluded timings.")
+
         elif source == "Video upload":
             up = st.file_uploader("Upload a video", type=["mp4", "avi", "mov", "mkv"])
             if up is not None:
@@ -135,7 +148,8 @@ with tab_live:
                     os.remove(tmp.name)
                 st.success("Video finished.")
 
-        else:  # Webcam
+        else:  # Live webcam (runs only where a camera is attached to the machine running the app)
+            st.caption("Live mode reads a camera attached to the computer running this app. On a hosted site, use Camera snapshot or uploads.")
             if st.toggle("Start webcam"):
                 model = get_model(model_key)
                 cap = cv2.VideoCapture(0)
