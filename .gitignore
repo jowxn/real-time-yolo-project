@@ -1,0 +1,8 @@
+venv/
+runs/
+__pycache__/
+*.pyc
+*.pt
+.vscode/
+data/raw/test_image.jpg
+datasets/
